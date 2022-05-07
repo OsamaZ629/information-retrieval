@@ -2,12 +2,9 @@ package com.osama.infoRetrieval.document;
 
 import com.osama.infoRetrieval.processing.tokenization.Token;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-public class Document{
+public class Document implements IsTokenizable{
     private final long id;
     private List<Token> terms;
     private Map<String, String> info;
@@ -25,19 +22,25 @@ public class Document{
 
     protected Document(Document doc){
         this.id = doc.getId();
-        this.terms = new ArrayList<Token>(doc.getTerms());
+        this.terms = new ArrayList<>(doc.getTokens());
     }
 
     public long getId() {
         return id;
     }
 
-    public List<Token> getTerms() {
-        return terms;
-    }
-
     public Map<String, String> getInfo() {
         return info;
+    }
+
+    @Override
+    public Collection<Token> getTokens() {
+        return this.terms;
+    }
+
+    @Override
+    public void setTokens(Collection<Token> tokens){
+        this.terms = (List<Token>) tokens;
     }
 
     @Override

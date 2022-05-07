@@ -2,25 +2,27 @@ package com.osama.infoRetrieval.processing.pipeline;
 
 import com.osama.infoRetrieval.document.Document;
 import com.osama.infoRetrieval.document.DocumentManager;
+import com.osama.infoRetrieval.document.IsTokenizable;
 import com.osama.infoRetrieval.document.RawDocument;
-import com.osama.infoRetrieval.processing.DocumentProcessor;
+import com.osama.infoRetrieval.processing.Processor;
 import com.osama.infoRetrieval.processing.tokenization.Token;
 import com.osama.infoRetrieval.processing.tokenization.Tokenizer;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-public class DocumentProcessingPipeline {
-    private List<DocumentProcessor> processors;
+public class TokenizableProcessingPipeline {
+    private final List<Processor> processors;
     private Tokenizer tokenizer;
 
-    public DocumentProcessingPipeline(Tokenizer tokenizer){
+    public TokenizableProcessingPipeline(Tokenizer tokenizer){
         this.processors = new ArrayList<>();
         this.tokenizer = tokenizer;
     }
 
-    public boolean addProcessor(DocumentProcessor proc){
-        for (DocumentProcessor processor: this.processors){
+    public boolean addProcessor(Processor proc){
+        for (Processor processor: this.processors){
             if (processor.getClass() == proc.getClass()){
                 return false;
             }
@@ -30,7 +32,7 @@ public class DocumentProcessingPipeline {
         return true;
     }
 
-    public DocumentProcessor removeProcessor(Class<? extends DocumentProcessor> proc){
+    public Processor removeProcessor(Class<? extends Processor> proc){
         for (int i = 0; i < this.processors.size(); i++){
             if (proc == this.processors.get(i).getClass()){
                 return this.processors.remove(i);
@@ -40,21 +42,31 @@ public class DocumentProcessingPipeline {
         return null;
     }
 
-    public void processDocument(Document doc){
-        for (DocumentProcessor proc: this.processors){
-            doc = proc.process(doc);
+    public Collection<Token> process(IsTokenizable doc){
+        Collection<Token> newTokens = doc.getTokens();
+        for (Processor proc: this.processors){
+            Collection<Token> finalNewTokens = newTokens;
+            newTokens = proc.process(new IsTokenizable() {
+                @Override
+                public Collection<Token> getTokens() {
+                    return finalNewTokens;
+                }
+
+                @Override
+                public void setTokens(Collection<Token> newTokens) {
+
+                }
+            });
         }
+        return newTokens;
     }
 
     public long processAndTokenizeDocument(RawDocument doc){
          List<Token> docTokens = this.tokenizer.tokenize(doc);
          long docId = DocumentManager.newDocument(docTokens);
          Document wellMadeDoc = DocumentManager.getDocument(docId);
-
-         for (DocumentProcessor proc: this.processors){
-             wellMadeDoc = proc.process(wellMadeDoc);
-        }
-
+         Collection<Token> tok = process(wellMadeDoc);
+         wellMadeDoc.setTokens(tok);
          return docId;
     }
 }

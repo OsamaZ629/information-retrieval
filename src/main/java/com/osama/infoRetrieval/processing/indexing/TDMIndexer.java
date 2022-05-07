@@ -25,7 +25,7 @@ public class TDMIndexer extends Indexer<TDMStorageDevice> {
     @Override
     public void index(Document doc) {
         long docId = doc.getId();
-        List<Token> docTerms = doc.getTerms();
+        List<Token> docTerms = (List<Token>) doc.getTokens();
 
         this.storage.addDoc(docId, docTerms);
     }

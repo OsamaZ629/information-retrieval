@@ -1,9 +1,7 @@
 package com.osama.infoRetrieval;
 
 import ai.djl.ndarray.NDArray;
-import ai.djl.ndarray.NDManager;
 import ai.djl.ndarray.types.DataType;
-import ai.djl.ndarray.types.Shape;
 import com.osama.infoRetrieval.document.Document;
 import com.osama.infoRetrieval.document.DocumentManager;
 import com.osama.infoRetrieval.document.Query;
@@ -14,18 +12,16 @@ import com.osama.infoRetrieval.processing.RemoveBigSpacesProcessor;
 import com.osama.infoRetrieval.processing.RemovePunctuationProcessor;
 import com.osama.infoRetrieval.processing.ToLowerCaseProcessor;
 import com.osama.infoRetrieval.processing.indexing.TDMIndexer;
-import com.osama.infoRetrieval.processing.pipeline.DocumentProcessingPipeline;
+import com.osama.infoRetrieval.processing.pipeline.TokenizableProcessingPipeline;
 import com.osama.infoRetrieval.processing.tokenization.BigWhiteSpaceTokenizer;
 import com.osama.infoRetrieval.processing.tokenization.Token;
 import com.osama.infoRetrieval.processing.tokenization.Tokenizer;
-import com.osama.infoRetrieval.processing.tokenization.WhiteSpaceTokenizer;
 
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
 // TODO: CREATE QUERY PIPELINE, and find out how to generalize queries and documents.
 // they should use same processors and same tokenizers.
@@ -38,7 +34,7 @@ public class Main {
         TDMIndexer indexer = new TDMIndexer();
         Tokenizer tokenizer = new BigWhiteSpaceTokenizer();
 
-        DocumentProcessingPipeline pl = new DocumentProcessingPipeline(tokenizer);
+        TokenizableProcessingPipeline pl = new TokenizableProcessingPipeline(tokenizer);
         pl.addProcessor(new ToLowerCaseProcessor());
         pl.addProcessor(new RemovePunctuationProcessor());
         pl.addProcessor(new RemoveBigSpacesProcessor());

@@ -41,7 +41,7 @@ public class TDMMatcher extends Matcher<TDMStorage> {
         long vectorSize = this.storage.getNumberOfTerms();
         NDArray nd = manager.zeros(new Shape(vectorSize), DataType.INT32);
 
-        for (Token term: q.getTerms()){
+        for (Token term: q.getTokens()){
             nd.setScalar(new NDIndex(this.storage.getTermIndex(term)), 1);
         }
 

@@ -1,14 +1,10 @@
 package com.osama.infoRetrieval.document;
 
 
-import com.osama.infoRetrieval.processing.tokenization.Token;
-
-import java.util.List;
-
-public class RawQuery {
+public class RawQuery implements HasContent{
     private final String content;
 
-    protected RawQuery(String content, List<Token> processedQuery) {
+    protected RawQuery(String content) {
         this.content = content;
     }
 
