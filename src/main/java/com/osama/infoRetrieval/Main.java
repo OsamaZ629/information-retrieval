@@ -23,8 +23,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
-// TODO: CREATE QUERY PIPELINE, and find out how to generalize queries and documents.
-// they should use same processors and same tokenizers.
 
 public class Main {
     public static void main(String[] args) {
