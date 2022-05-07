@@ -15,10 +15,10 @@ import com.osama.infoRetrieval.processing.tokenization.Token;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TDMMatcher extends Matcher<TDMStorage> {
+public class TDMWordMatcher extends Matcher<TDMStorage> {
     private NDManager manager = NDManager.newBaseManager();
 
-    public TDMMatcher(TDMStorage storage) {
+    public TDMWordMatcher(TDMStorage storage) {
         super(storage);
     }
 

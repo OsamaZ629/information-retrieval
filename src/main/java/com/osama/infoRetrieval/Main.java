@@ -6,7 +6,7 @@ import com.osama.infoRetrieval.document.Document;
 import com.osama.infoRetrieval.document.DocumentManager;
 import com.osama.infoRetrieval.document.Query;
 import com.osama.infoRetrieval.document.RawDocument;
-import com.osama.infoRetrieval.matching.TDMMatcher;
+import com.osama.infoRetrieval.matching.TDMWordMatcher;
 import com.osama.infoRetrieval.preproccesing.dilenation.CISIDilenator;
 import com.osama.infoRetrieval.processing.RemoveBigSpacesProcessor;
 import com.osama.infoRetrieval.processing.RemovePunctuationProcessor;
@@ -48,10 +48,11 @@ public class Main {
         }
 
         List<Token> terms = new ArrayList<Token>();
-        terms.add(new Token("present"));
+        terms.add(new Token("  preSEnT\n\n        "));
         Query q = new Query(terms);
+        q.setTokens(pl.process(q));
 
-        TDMMatcher matcher = new TDMMatcher(indexer.getStorageDevice());
+        TDMWordMatcher matcher = new TDMWordMatcher(indexer.getStorageDevice());
         List<Document> docsMatched = matcher.match(q);
 
         for (Document doc: docsMatched){
