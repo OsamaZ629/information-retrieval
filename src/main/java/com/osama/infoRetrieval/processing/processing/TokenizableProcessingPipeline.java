@@ -1,10 +1,6 @@
-package com.osama.infoRetrieval.processing.pipeline;
+package com.osama.infoRetrieval.processing.processing;
 
-import com.osama.infoRetrieval.document.Document;
-import com.osama.infoRetrieval.document.DocumentManager;
-import com.osama.infoRetrieval.document.IsTokenizable;
-import com.osama.infoRetrieval.document.RawDocument;
-import com.osama.infoRetrieval.processing.Processor;
+import com.osama.infoRetrieval.document.*;
 import com.osama.infoRetrieval.processing.tokenization.Token;
 import com.osama.infoRetrieval.processing.tokenization.Tokenizer;
 
@@ -13,8 +9,8 @@ import java.util.Collection;
 import java.util.List;
 
 public class TokenizableProcessingPipeline {
-    private final List<Processor> processors;
-    private Tokenizer tokenizer;
+    protected final List<Processor> processors;
+    protected Tokenizer tokenizer;
 
     public TokenizableProcessingPipeline(Tokenizer tokenizer){
         this.processors = new ArrayList<>();
@@ -43,30 +39,31 @@ public class TokenizableProcessingPipeline {
     }
 
     public Collection<Token> process(IsTokenizable doc){
-        Collection<Token> newTokens = doc.getTokens();
+        Collection<Token> newTokens = new ArrayList<>(doc.getTokens());
         for (Processor proc: this.processors){
-            Collection<Token> finalNewTokens = newTokens;
-            newTokens = proc.process(new IsTokenizable() {
-                @Override
-                public Collection<Token> getTokens() {
-                    return finalNewTokens;
-                }
-
-                @Override
-                public void setTokens(Collection<Token> newTokens) {
-
-                }
-            });
+            newTokens = proc.process(newTokens);
         }
         return newTokens;
     }
 
-    public long processAndTokenizeDocument(RawDocument doc){
+    public Collection<Token> process(List<Token> tokens){
+        Collection<Token> newTokens = new ArrayList<>(tokens);
+        for (Processor proc: this.processors){
+            newTokens = proc.process(newTokens);
+        }
+        return newTokens;
+    }
+
+    public Document processAndTokenizeDocument(RawDocument doc){
          List<Token> docTokens = this.tokenizer.tokenize(doc);
-         long docId = DocumentManager.newDocument(docTokens);
-         Document wellMadeDoc = DocumentManager.getDocument(docId);
-         Collection<Token> tok = process(wellMadeDoc);
-         wellMadeDoc.setTokens(tok);
-         return docId;
+         Collection<Token> tok = process(docTokens);
+         long docId = DocumentManager.newDocument((List<Token>) tok);
+         return DocumentManager.getDocument(docId);
+    }
+
+    public Query processAndTokenizeQuery(RawQuery query){
+        List<Token> docTokens = this.tokenizer.tokenize(query);
+        Collection<Token> tok = process(docTokens);
+        return new Query((List<Token>) tok);
     }
 }

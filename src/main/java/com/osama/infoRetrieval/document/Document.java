@@ -51,4 +51,17 @@ public class Document implements IsTokenizable{
                 ", info=" + info +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Document)) return false;
+        Document document = (Document) o;
+        return id == document.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Long.valueOf(id).hashCode();
+    }
 }

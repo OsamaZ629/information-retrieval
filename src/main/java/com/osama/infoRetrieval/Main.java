@@ -2,17 +2,16 @@ package com.osama.infoRetrieval;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.types.DataType;
-import com.osama.infoRetrieval.document.Document;
-import com.osama.infoRetrieval.document.DocumentManager;
-import com.osama.infoRetrieval.document.Query;
-import com.osama.infoRetrieval.document.RawDocument;
-import com.osama.infoRetrieval.matching.TDMWordMatcher;
+import com.osama.infoRetrieval.document.*;
+import com.osama.infoRetrieval.matching.boolean_matchers.TDMBooleanMatcher;
+import com.osama.infoRetrieval.matching.word_matchers.TDMWordMatcher;
 import com.osama.infoRetrieval.preproccesing.dilenation.CISIDilenator;
-import com.osama.infoRetrieval.processing.RemoveBigSpacesProcessor;
-import com.osama.infoRetrieval.processing.RemovePunctuationProcessor;
-import com.osama.infoRetrieval.processing.ToLowerCaseProcessor;
+import com.osama.infoRetrieval.processing.processing.BooleanQueryProcessor;
+import com.osama.infoRetrieval.processing.processing.RemoveBigSpacesProcessor;
+import com.osama.infoRetrieval.processing.processing.RemovePunctuationProcessor;
+import com.osama.infoRetrieval.processing.processing.ToLowerCaseProcessor;
 import com.osama.infoRetrieval.processing.indexing.TDMIndexer;
-import com.osama.infoRetrieval.processing.pipeline.TokenizableProcessingPipeline;
+import com.osama.infoRetrieval.processing.processing.TokenizableProcessingPipeline;
 import com.osama.infoRetrieval.processing.tokenization.BigWhiteSpaceTokenizer;
 import com.osama.infoRetrieval.processing.tokenization.Token;
 import com.osama.infoRetrieval.processing.tokenization.Tokenizer;
@@ -32,27 +31,30 @@ public class Main {
         TDMIndexer indexer = new TDMIndexer();
         Tokenizer tokenizer = new BigWhiteSpaceTokenizer();
 
-        TokenizableProcessingPipeline pl = new TokenizableProcessingPipeline(tokenizer);
-        pl.addProcessor(new ToLowerCaseProcessor());
-        pl.addProcessor(new RemovePunctuationProcessor());
-        pl.addProcessor(new RemoveBigSpacesProcessor());
+        TokenizableProcessingPipeline docPL = new TokenizableProcessingPipeline(tokenizer);
+        docPL.addProcessor(new ToLowerCaseProcessor());
+        docPL.addProcessor(new RemovePunctuationProcessor());
+        docPL.addProcessor(new RemoveBigSpacesProcessor());
+
+        TokenizableProcessingPipeline queryPL = new TokenizableProcessingPipeline(tokenizer);
+        queryPL.addProcessor(new RemoveBigSpacesProcessor());
+        queryPL.addProcessor(new ToLowerCaseProcessor());
+        queryPL.addProcessor(new RemovePunctuationProcessor());
+        queryPL.addProcessor(new BooleanQueryProcessor());
 
         int counter = 0;
         while(dilenator.hasNext() && counter < 25){
             RawDocument rawDoc = dilenator.next();
-            long docId = pl.processAndTokenizeDocument(rawDoc);
-            Document doc = DocumentManager.getDocument(docId);
+            Document doc = docPL.processAndTokenizeDocument(rawDoc);
             indexer.index(doc);
 
             counter++;
         }
 
-        List<Token> terms = new ArrayList<Token>();
-        terms.add(new Token("  preSEnT\n\n        "));
-        Query q = new Query(terms);
-        q.setTokens(pl.process(q));
+        RawQuery rq = new RawQuery("present and history");
+        Query q = queryPL.processAndTokenizeQuery(rq);
 
-        TDMWordMatcher matcher = new TDMWordMatcher(indexer.getStorageDevice());
+        TDMBooleanMatcher matcher = new TDMBooleanMatcher(indexer.getStorageDevice());
         List<Document> docsMatched = matcher.match(q);
 
         for (Document doc: docsMatched){
@@ -60,23 +62,23 @@ public class Main {
         }
     }
 
-    public static void print1DArr(NDArray arr){
-        arr = arr.toType(DataType.INT32, true);
-        System.out.println("[");
-        for (int i = 0; i < arr.size(); i++){
-            System.out.println(arr.getInt(i) + ",");
-        }
-        System.out.println("\b\b\n]");
-    }
-
-    public static void print2DArr(NDArray arr){
-        System.out.println("[");
-        for (int i = 0; i < arr.size(0); i++){
-            for (int j = 0; j < arr.size(1); j++){
-                System.out.print(arr.getInt(i, j) + ", ");
-            }
-            System.out.println("\b");
-        }
-        System.out.println("\b\n]");
-    }
+//    public static void print1DArr(NDArray arr){
+//        arr = arr.toType(DataType.INT32, true);
+//        System.out.println("[");
+//        for (int i = 0; i < arr.size(); i++){
+//            System.out.println(arr.getInt(i) + ",");
+//        }
+//        System.out.println("\b\b\n]");
+//    }
+//
+//    public static void print2DArr(NDArray arr){
+//        System.out.println("[");
+//        for (int i = 0; i < arr.size(0); i++){
+//            for (int j = 0; j < arr.size(1); j++){
+//                System.out.print(arr.getInt(i, j) + ", ");
+//            }
+//            System.out.println("\b");
+//        }
+//        System.out.println("\b\n]");
+//    }
 }

@@ -1,4 +1,4 @@
-package com.osama.infoRetrieval.matching;
+package com.osama.infoRetrieval.matching.word_matchers;
 
 import ai.djl.ndarray.NDArray;
 import ai.djl.ndarray.NDArrays;
@@ -9,6 +9,7 @@ import ai.djl.ndarray.types.Shape;
 import com.osama.infoRetrieval.document.Document;
 import com.osama.infoRetrieval.document.DocumentManager;
 import com.osama.infoRetrieval.document.Query;
+import com.osama.infoRetrieval.matching.Matcher;
 import com.osama.infoRetrieval.processing.storageDevice.TDMStorage;
 import com.osama.infoRetrieval.processing.tokenization.Token;
 
