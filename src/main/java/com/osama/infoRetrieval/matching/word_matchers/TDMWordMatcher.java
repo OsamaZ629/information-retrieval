@@ -13,6 +13,7 @@ import com.osama.infoRetrieval.matching.Matcher;
 import com.osama.infoRetrieval.processing.storageDevice.TDMStorage;
 import com.osama.infoRetrieval.processing.tokenization.Token;
 
+import java.security.KeyException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,27 +26,29 @@ public class TDMWordMatcher extends Matcher<TDMStorage> {
 
     @Override
     public List<Document> match(Query q) {
-        NDArray queryVec = createQueryVector(q);
-        List<Document> docs = new ArrayList<Document>((int) queryVec.size());
+        List<Document> docs = new ArrayList<Document>();
+        List<Token> tokens = (List<Token>) q.getTokens();
 
-        for (int i = 0; i < this.storage.getNumberOfDocument(); i++) {
-            NDArray tmp = NDArrays.logicalAnd(queryVec.toType(DataType.INT32, false), (this.storage.getDocumentVector(i)));
-            if (tmp.sum().toType(DataType.INT32, false).getInt() == queryVec.sum().toType(DataType.INT32, true).getInt()){
+        NDArray nd = null;
+        for(Token term: tokens){
+            NDArray termVector = storage.getTermVector(term.getContent());
+            if (termVector == null){
+                continue;
+            } else if (nd == null){
+                nd = termVector;
+            }
+            nd = NDArrays.logicalAnd(nd, termVector);
+        }
+
+        if (nd == null){
+            return docs;
+        }
+
+        for (int i = 0; i < nd.size(); i++){
+            if (nd.toType(DataType.BOOLEAN, false).getBoolean(i)){
                 docs.add(DocumentManager.getDocument(i));
             }
         }
-
         return docs;
-    }
-
-    private NDArray createQueryVector(Query q){
-        long vectorSize = this.storage.getNumberOfTerms();
-        NDArray nd = manager.zeros(new Shape(vectorSize), DataType.INT32);
-
-        for (Token term: q.getTokens()){
-            nd.setScalar(new NDIndex(this.storage.getTermIndex(term)), 1);
-        }
-
-        return nd;
     }
 }

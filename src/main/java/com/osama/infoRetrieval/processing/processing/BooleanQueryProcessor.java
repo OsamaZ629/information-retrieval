@@ -21,7 +21,7 @@ public class BooleanQueryProcessor extends Processor {
             if (tokens.get(i).equals(AND_TOKEN)){
                 if (tokens.get(i + 1).equals(NOT_TOKEN)){
                     res.set(i, new Token("&&!"));
-                    i++;
+                    res.remove(i + 1);
                 } else{
                     res.set(i, new Token("&&"));
 
@@ -43,7 +43,7 @@ public class BooleanQueryProcessor extends Processor {
             if (tokens1.get(i).equals(AND_TOKEN)){
                 if (tokens1.get(i + 1).equals(NOT_TOKEN)){
                     res.set(i, new Token("&&!"));
-                    i++;
+                    res.remove(i + 1);
                 } else{
                     res.set(i, new Token("&&"));
 
@@ -63,7 +63,6 @@ public class BooleanQueryProcessor extends Processor {
                 if (tokens.get(i + 1).equals(NOT_TOKEN)){
                     tokens.set(i, new Token("&&!"));
                     tokens.remove(i + 1);
-                    i++;
                 } else{
                     tokens.set(i, new Token("&&"));
 

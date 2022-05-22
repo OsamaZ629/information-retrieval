@@ -20,6 +20,8 @@ public class RemoveBigSpacesProcessor extends Processor {
 
         for (Token term: tokens){
             String newTerm = term.getContent().replaceAll("\\s", " ").trim();
+            if (newTerm.isEmpty())
+                continue;
             res.add(new Token(newTerm));
         }
 

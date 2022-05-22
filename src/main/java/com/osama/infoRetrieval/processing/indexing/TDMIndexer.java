@@ -9,6 +9,7 @@ import com.osama.infoRetrieval.document.Document;
 import com.osama.infoRetrieval.processing.storageDevice.TDMStorage;
 import com.osama.infoRetrieval.processing.tokenization.Token;
 
+import java.security.KeyException;
 import java.util.*;
 
 public class TDMIndexer extends Indexer<TDMStorageDevice> {
@@ -95,13 +96,19 @@ class TDMStorageDevice implements TDMStorage{
     }
 
     @Override
-    public long getTermIndex(Token term) {
-        return this.terms.get(term);
+    public long getTermIndex(Token term) throws KeyException {
+        if (this.terms.containsKey(term))
+            return this.terms.get(term);
+        else
+            throw new KeyException("Term does not exist.");
     }
 
     @Override
-    public long getDocumentIndex(long id) {
-        return this.docIds.get(id);
+    public long getDocumentIndex(long id) throws KeyException {
+        if (this.docIds.containsKey(id))
+            return this.docIds.get(id);
+        else
+            throw new KeyException("Term does not exist.");
     }
 
     protected void addDoc(long docId, List<Token> terms){

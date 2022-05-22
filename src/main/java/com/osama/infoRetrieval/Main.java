@@ -13,6 +13,7 @@ import com.osama.infoRetrieval.processing.processing.ToLowerCaseProcessor;
 import com.osama.infoRetrieval.processing.indexing.TDMIndexer;
 import com.osama.infoRetrieval.processing.processing.TokenizableProcessingPipeline;
 import com.osama.infoRetrieval.processing.tokenization.BigWhiteSpaceTokenizer;
+import com.osama.infoRetrieval.processing.tokenization.BooleanTokenizer;
 import com.osama.infoRetrieval.processing.tokenization.Token;
 import com.osama.infoRetrieval.processing.tokenization.Tokenizer;
 
@@ -30,13 +31,14 @@ public class Main {
 
         TDMIndexer indexer = new TDMIndexer();
         Tokenizer tokenizer = new BigWhiteSpaceTokenizer();
+        Tokenizer queryTokenizer = new BooleanTokenizer();
 
         TokenizableProcessingPipeline docPL = new TokenizableProcessingPipeline(tokenizer);
         docPL.addProcessor(new ToLowerCaseProcessor());
         docPL.addProcessor(new RemovePunctuationProcessor());
         docPL.addProcessor(new RemoveBigSpacesProcessor());
 
-        TokenizableProcessingPipeline queryPL = new TokenizableProcessingPipeline(tokenizer);
+        TokenizableProcessingPipeline queryPL = new TokenizableProcessingPipeline(queryTokenizer);
         queryPL.addProcessor(new RemoveBigSpacesProcessor());
         queryPL.addProcessor(new ToLowerCaseProcessor());
         queryPL.addProcessor(new RemovePunctuationProcessor());
@@ -51,7 +53,7 @@ public class Main {
             counter++;
         }
 
-        RawQuery rq = new RawQuery("present and history");
+        RawQuery rq = new RawQuery("present and history and not selective");
         Query q = queryPL.processAndTokenizeQuery(rq);
 
         TDMBooleanMatcher matcher = new TDMBooleanMatcher(indexer.getStorageDevice());
